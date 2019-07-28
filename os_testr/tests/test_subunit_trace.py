@@ -24,6 +24,7 @@ from ddt import ddt
 from ddt import unpack
 from mock import patch
 import six
+from stdio_mgr import stdio_mgr
 
 from os_testr import subunit_trace
 from os_testr.tests import base
@@ -87,10 +88,9 @@ class TestSubunitTrace(base.TestCase):
         regular_stream = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'sample_streams/successful.subunit')
-        bytes_ = io.BytesIO()
-        with open(regular_stream, 'rb') as stream:
-            bytes_.write(six.binary_type(stream.read()))
-        bytes_.seek(0)
-        stdin = io.TextIOWrapper(io.BufferedReader(bytes_))
-        returncode = subunit_trace.trace(stdin, sys.stdout)
+        with open(regular_stream, 'r', encoding='utf-8') as stream:
+            text = stream.read()
+        real_stdout = sys.stdout
+        with stdio_mgr(text) as (in_, out_, err_):
+            returncode = subunit_trace.trace(in_, real_stdout)
         self.assertEqual(0, returncode)
