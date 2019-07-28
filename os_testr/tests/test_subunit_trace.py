@@ -88,9 +88,9 @@ class TestSubunitTrace(base.TestCase):
         regular_stream = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'sample_streams/successful.subunit')
-        with open(regular_stream, 'r', encoding='utf-8') as stream:
-            text = stream.read()
+        with open(regular_stream, 'rb') as stream:
+            raw = stream.read()
         real_stdout = sys.stdout
-        with stdio_mgr(text) as (in_, out_, err_):
+        with stdio_mgr(raw) as (in_, out_, err_):
             returncode = subunit_trace.trace(in_, real_stdout)
         self.assertEqual(0, returncode)
